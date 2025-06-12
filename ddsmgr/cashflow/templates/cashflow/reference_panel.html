@@ -1,0 +1,103 @@
+{% extends "cashflow/base.html" %}
+{% load static %}
+{% block title %}Справочники{% endblock %}
+
+{% block content %}
+<h2>Справочники</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Типы</h4>
+        <ul class="list-group mb-3">
+            {% for t in types %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ t.name }}
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReference('types', {{ t.id }})">✖</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <form id="add-type-form" class="input-group mb-3">
+            {% csrf_token %}
+            <input type="text" name="name" class="form-control" placeholder="Новый тип">
+            <button class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h4>Категории</h4>
+        <ul class="list-group mb-3">
+            {% for c in categories %}
+                <li class="list-group-item">
+                    {{ c.name }} (Тип ID: {{ c.type }})
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReference('categories', {{ c.id }})">✖</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <form id="add-category-form" class="row g-2">
+            {% csrf_token %}
+            <div class="col-6">
+                <input type="text" name="name" class="form-control" placeholder="Название категории">
+            </div>
+            <div class="col-4">
+                <select name="type" class="form-control">
+                    {% for t in types %}
+                        <option value="{{ t.id }}">{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-success w-100">+</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-6 mt-5">
+    <h4>Подкатегории</h4>
+    <ul class="list-group mb-3">
+        {% for s in subcategories %}
+            <li class="list-group-item">
+                {{ s.name }} (Категория ID: {{ s.category }})
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteReference('subcategories', {{ s.id }})">✖</button>
+            </li>
+        {% endfor %}
+    </ul>
+    <form id="add-subcategory-form" class="row g-2">
+        {% csrf_token %}
+        <div class="col-6">
+            <input type="text" name="name" class="form-control" placeholder="Название подкатегории">
+        </div>
+        <div class="col-4">
+            <select name="category" class="form-control">
+                {% for c in categories %}
+                    <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-success w-100">+</button>
+        </div>
+    </form>
+    </div>
+
+    <div class="col-md-6 mt-5">
+    <h4>Статусы</h4>
+    <ul class="list-group mb-3">
+        {% for s in statuses %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ s.name }}
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteReference('statuses', {{ s.id }})">✖</button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <form id="add-status-form" class="input-group mb-3">
+        {% csrf_token %}
+        <input type="text" name="status_name" class="form-control" placeholder="Новый статус">
+        <button class="btn btn-primary">Добавить</button>
+    </form>
+    </div>
+</div>
+
+
+<script src="{% static 'cashflow/js/reference_panel.js' %}"></script>
+{% endblock %}

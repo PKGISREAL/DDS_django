@@ -1,0 +1,47 @@
+{% extends "cashflow/base.html" %}
+{% load static %}
+{% block title %}Добавить запись{% endblock %}
+{% block content %}
+<h2>Добавить запись</h2>
+
+<form method="post" id="record-form" class="row g-3">
+    {% csrf_token %}
+    <div class="col-md-4">
+        <label>Дата:</label>
+        <input type="date" name="date" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+        <label>Статус:</label>
+        <select name="status" class="form-control" required></select>
+    </div>
+    <div class="col-md-4">
+        <label>Тип:</label>
+        <select name="type" class="form-control" required></select>
+    </div>
+    <div class="col-md-4">
+        <label>Категория:</label>
+        <select name="category" class="form-control" required></select>
+    </div>
+    <div class="col-md-4">
+        <label>Подкатегория:</label>
+        <select name="subcategory" class="form-control" required></select>
+    </div>
+    <div class="col-md-4">
+        <label>Сумма:</label>
+        <input type="number" name="amount" class="form-control" required>
+    </div>
+    <div class="col-md-12">
+        <label>Комментарий:</label>
+        <textarea name="comment" class="form-control"></textarea>
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-success">Создать</button>
+    </div>
+</form>
+
+<script>
+    window.RECORD_ID = "{{ record_id|default:'' }}";
+</script>
+<script src="{% static 'cashflow/js/record_form.js' %}"></script>
+
+{% endblock %}

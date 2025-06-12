@@ -1,0 +1,61 @@
+{% extends "cashflow/base.html" %}
+{% load static %}
+{% block title %}Список ДДС{% endblock %}
+
+{% block content %}
+    <form id="csrf-form" style="display: none;">
+        {% csrf_token %}
+    </form>
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-2">
+            <input type="date" name="start" class="form-control" value="{{ request.GET.start }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="end" class="form-control" value="{{ request.GET.end }}">
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="status" class="form-control" placeholder="Статус" value="{{ request.GET.status }}">
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="type" class="form-control" placeholder="Тип" value="{{ request.GET.type }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Фильтр</button>
+        </div>
+    </form>
+
+   <table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Категория</th>
+            <th>Подкатегория</th>
+            <th>Статус</th>
+            <th>Сумма</th>
+            <th>Комментарий</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+            <tr>
+                <td>{{ record.date }}</td>
+                <td>{{ record.type_name }}</td>
+                <td>{{ record.category_name }}</td>
+                <td>{{ record.subcategory_name }}</td>
+                <td>{{ record.status_name }}</td>
+                <td>{{ record.amount }} ₽</td>
+                <td>{{ record.comment }}</td>
+                <td>
+                    <a href="{% url 'record-edit' record.id %}" class="btn btn-sm btn-primary">✏️</a>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRecord({{ record.id }})">🗑️</button>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="8" class="text-center">Нет записей</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="{% static 'cashflow/js/record_list.js' %}"></script>
+{% endblock %}

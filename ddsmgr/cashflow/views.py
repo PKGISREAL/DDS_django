@@ -1,39 +1,42 @@
 import requests
 from django.shortcuts import render
+from .models import CashFlowRecord, Status, Type, Category, SubCategory
 
 
 def record_list(request):
-    base = "http://127.0.0.1:8000/api"
+    records = CashFlowRecord.objects.all()
 
-    def get_json_safe(url):
-        try:
-            res = requests.get(url)
-            res.raise_for_status()
-            return res.json()
-        except Exception as e:
-            print(f"Ошибка получения {url}: {e}")
-            return []
+    # фильтры из request.GET
+    date = request.GET.get("date")
+    type_id = request.GET.get("type")
+    category_id = request.GET.get("category")
+    subcategory_id = request.GET.get("subcategory")
+    status_id = request.GET.get("status")
 
-    records = get_json_safe(f"{base}/cashflow/")
-    statuses = get_json_safe(f"{base}/statuses/")
-    types = get_json_safe(f"{base}/types/")
-    categories = get_json_safe(f"{base}/categories/")
-    subcategories = get_json_safe(f"{base}/subcategories/")
+    if date:
+        records = records.filter(date=date)
+    if type_id:
+        records = records.filter(type_id=type_id)
+    if category_id:
+        records = records.filter(category_id=category_id)
+    if subcategory_id:
+        records = records.filter(subcategory_id=subcategory_id)
+    if status_id:
+        records = records.filter(status_id=status_id)
 
-    # строим ID → name словари
-    status_map = {s['id']: s['name'] for s in statuses}
-    type_map = {t['id']: t['name'] for t in types}
-    category_map = {c['id']: c['name'] for c in categories}
-    subcategory_map = {sc['id']: sc['name'] for sc in subcategories}
+    # справочники
+    types = Type.objects.all()
+    categories = Category.objects.all()
+    subcategories = SubCategory.objects.all()
+    statuses = Status.objects.all()
 
-    # обогащаем записи
-    for r in records:
-        r['status_name'] = status_map.get(r.get('status'), '—')
-        r['type_name'] = type_map.get(r.get('type'), '—')
-        r['category_name'] = category_map.get(r.get('category'), '—')
-        r['subcategory_name'] = subcategory_map.get(r.get('subcategory'), '—')
-
-    return render(request, "cashflow/record_list.html", {"records": records})
+    return render(request, "cashflow/record_list.html", {
+        "records": records,
+        "types": types,
+        "categories": categories,
+        "subcategories": subcategories,
+        "statuses": statuses,
+    })
 
 
 def record_create(request):

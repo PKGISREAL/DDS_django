@@ -1,31 +1,64 @@
 {% extends "cashflow/base.html" %}
 {% load static %}
-{% block title %}Список ДДС{% endblock %}
+
+{% block title %}Записи{% endblock %}
 
 {% block content %}
-    <form id="csrf-form" style="display: none;">
-        {% csrf_token %}
-    </form>
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-2">
-            <input type="date" name="start" class="form-control" value="{{ request.GET.start }}">
-        </div>
-        <div class="col-md-2">
-            <input type="date" name="end" class="form-control" value="{{ request.GET.end }}">
-        </div>
-        <div class="col-md-2">
-            <input type="text" name="status" class="form-control" placeholder="Статус" value="{{ request.GET.status }}">
-        </div>
-        <div class="col-md-2">
-            <input type="text" name="type" class="form-control" placeholder="Тип" value="{{ request.GET.type }}">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Фильтр</button>
-        </div>
-    </form>
+<h2 class="mb-4">Финансовые записи</h2>
 
-   <table class="table table-bordered table-hover">
-    <thead>
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-2">
+        <input type="date" name="start" class="form-control" placeholder="С" value="{{ request.GET.start }}">
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="end" class="form-control" placeholder="По" value="{{ request.GET.end }}">
+    </div>
+    <div class="col-md-2">
+        <select name="type" class="form-select">
+            <option value="">Тип</option>
+            {% for t in types %}
+                <option value="{{ t.id }}" {% if request.GET.type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="category" class="form-select">
+            <option value="">Категория</option>
+            {% for c in categories %}
+                <option value="{{ c.id }}" {% if request.GET.category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="subcategory" class="form-select">
+            <option value="">Подкатегория</option>
+            {% for sc in subcategories %}
+                <option value="{{ sc.id }}" {% if request.GET.subcategory == sc.id|stringformat:"s" %}selected{% endif %}>{{ sc.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">Статус</option>
+            {% for s in statuses %}
+            <option value="{{ s.id }}" {% if request.GET.status == s.id|stringformat:"s" %}selected{% endif %}>
+                {{ s.name }}
+            </option>
+    {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
+    </div>
+    <div class="col-md-2">
+        <a href="{% url 'record-list' %}" class="btn btn-outline-secondary w-100">Сбросить</a>
+    </div>
+</form>
+
+<a href="{% url 'record-create' %}" class="btn btn-success mb-3">➕ Добавить запись</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
         <tr>
             <th>Дата</th>
             <th>Тип</th>
@@ -41,10 +74,10 @@
         {% for record in records %}
             <tr>
                 <td>{{ record.date }}</td>
-                <td>{{ record.type_name }}</td>
-                <td>{{ record.category_name }}</td>
-                <td>{{ record.subcategory_name }}</td>
-                <td>{{ record.status_name }}</td>
+                <td>{{ record.type.name }}</td>
+                <td>{{ record.category.name }}</td>
+                <td>{{ record.subcategory.name }}</td>
+                <td>{{ record.status.name }}</td>
                 <td>{{ record.amount }} ₽</td>
                 <td>{{ record.comment }}</td>
                 <td>
@@ -53,9 +86,13 @@
                 </td>
             </tr>
         {% empty %}
-            <tr><td colspan="8" class="text-center">Нет записей</td></tr>
+            <tr><td colspan="8" class="text-center">Записей не найдено</td></tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
 <script src="{% static 'cashflow/js/record_list.js' %}"></script>
 {% endblock %}
